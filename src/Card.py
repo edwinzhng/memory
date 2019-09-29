@@ -5,8 +5,8 @@ class Card:
     self.value: CardValue = value
     self.suit: Suit = suit
 
-  def value(self) -> CardValue:
-    return self.value
+  def __str__(self):
+    return '{} of {}'.format(self.value.name, self.suit.name)
 
-  def suit(self) -> Suit:
-    return self.suit
+  def __repr__(self):
+    return '{} of {}'.format(self.value.name, self.suit.name)

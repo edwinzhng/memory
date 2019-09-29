@@ -20,3 +20,11 @@ class CardValue(Enum):
   JACK = 11
   QUEEN = 12
   KING = 13
+
+class Modes(Enum):
+  SOLO = 'solo'
+  CPU = 'cpu'
+
+class Difficulties(Enum):
+  NORMAL = 'normal'
+  HARD = 'hard'

@@ -1,7 +1,16 @@
-from src.Game import Game
-
+from src.CPUGame import CPUGame
+from src.display.WelcomeDisplay import WelcomeDisplay
+from src.SoloGame import SoloGame
+from src.util.enums import Difficulties, Modes
 
 if __name__ == "__main__":
-  print("Welcome to Memory!")
-  game = Game()
-  print(game.cards)
+  welcome_display = WelcomeDisplay()
+  mode, difficulty = welcome_display.display()
+
+  game = None
+  if mode is Modes.SOLO:
+    game = SoloGame()
+  else:
+    game = CPUGame(difficulty)
+  
+  game.start_game()
