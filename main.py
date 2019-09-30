@@ -4,8 +4,7 @@ from src.Game import Game
 
 if __name__ == "__main__":
   terminal = Terminal()
-  welcome_display = WelcomeDisplay(terminal)
-  difficulty = welcome_display.get_input()
-
+  welcome = WelcomeDisplay(terminal)
+  difficulty = welcome.display()
   game = Game(terminal, difficulty)
   game.run()

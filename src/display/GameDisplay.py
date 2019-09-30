@@ -1,18 +1,19 @@
 from colorama import Fore
 
-from src.util.constants import CARDS_PER_ROW, NUM_PAIRS, MEMORY_ASCII
+from src.display.Display import Display
+from src.util.constants import CARDS_PER_ROW, MEMORY_ASCII, NUM_PAIRS
 
 
-class GameDisplay:
-  def __init__(self, terminal):
-    self.term = terminal
-
-  def display_game(self, board, score, high_score,
+class GameDisplay(Display):
+  def display(self, board, score, high_score,
                    matched, cur_card, selected,
                    is_match, show_match):
-    self.term.clear()
     with self.term.fullscreen():
-      print(Fore.LIGHTCYAN_EX + MEMORY_ASCII + Fore.RESET + '\n')
+      self.print_header()
+      print(self.term.move(*self.refresh_location))
+      print('  Change cards with UP ↑, DOWN ↓, LEFT ←, RIGHT →\n\n')
+      print('  Press ENTER to select a card')
+      
       x, y = self.term.get_location()
       y_0 = y
 
@@ -26,24 +27,23 @@ class GameDisplay:
         y = y_0
         x += 5
 
-      print('\n\n')
-
+      print('\n')
       if show_match:
-        match_message = 'You found a match!' if is_match else 'Try again!'
-        print('{}'.format(match_message))
+        if is_match:
+          match_message = Fore.LIGHTGREEN_EX + 'You found a match!'
+        else:
+          match_message = Fore.LIGHTMAGENTA_EX + 'Try again!'
+        print('  {} (Press any KEY to continue)'.format(match_message) + Fore.RESET)
       else:
         print()
+      print('\n  Score: {}       \n'.format(score))
+      print('  High Score: {}      '.format(high_score))
 
-      print('  Score: {}'.format(score))
-      print('  High Score: {}'.format(high_score))
-
-  
   def display_game_over(self, score, high_score):
-    self.term.clear()
     with self.term.fullscreen():
-      print(Fore.LIGHTCYAN_EX + memory_ascii + Fore.RESET + '\n')
+      self.print_header()
+      print(self.term.move(*self.refresh_location))
       print('\n\n  You won! Press ENTER to play again or press Q to quit.')
-
       print('\n\n  Score: {}'.format(score))
       print('  High Score: {}'.format(high_score))
 
@@ -51,5 +51,4 @@ class GameDisplay:
     return bool((row, col) in matched or (row, col) in selected)
 
   def is_selected(self, row, col, cur_card):
-    return row is cur_card[0] and col is cur_card[1]
-
+    return row == cur_card[0] and col == cur_card[1]

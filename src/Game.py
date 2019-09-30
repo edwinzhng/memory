@@ -1,9 +1,10 @@
 import random
+import sys
 
 from src.Card import Card
 from src.display.GameDisplay import GameDisplay
 from src.util.constants import CARDS_PER_ROW, NUM_PAIRS
-from src.util.enums import CardValue, Suit
+from src.util.enums import CardValue, Difficulty, Suit
 
 
 class Game():
@@ -14,25 +15,27 @@ class Game():
     self.high_score = 0
     self.display = GameDisplay(terminal)
     self.reset()
+    self.seen = {}
 
   def run(self):
     while(True):
       self.reset()
       self.refresh_display()
+
+      # while not game over, prompt user for new selections
       while len(self.matched) < NUM_PAIRS * 2:
         self.select_cards()
-        self.move()
-        self.refresh_display()
-      
+
+      if self.score > self.high_score:
+        self.high_score = self.score
+
       self.display.display_game_over(self.score, self.high_score)
-
       with self.term.cbreak():
-        key = None
-        while not key or key.name not in ['KEY_ENTER', 'q', 'Q']:
-            key = self.term.inkey()
-
-        if key.name in ['q', 'Q']:
-          break
+        key = ''
+        while key.lower() != 'q' and getattr(key, 'name', '') != 'KEY_ENTER':
+          key = self.term.inkey()
+        if key.lower() == 'q':
+          sys.exit()
 
   def reset(self) -> None:
     cards = random.sample(self.deck, NUM_PAIRS) * 2
@@ -43,70 +46,133 @@ class Game():
     self.cur_card = (0, 0)
     self.score = 0
 
-  def refresh_display(self, is_match=False, show_match=False):
-    self.display.display_game(self.board, self.score,
-                         self.high_score, self.matched,
-                         self.cur_card, self.selected,
-                         is_match, show_match)
-
+  # select 2 cards and check if there is a match
   def select_cards(self):
     self.selected = []
     self.reset_cur_card()
 
     with self.term.cbreak():
       key = None
-      while not key or key.name is not 'KEY_ENTER':
+      while not key or key.name != 'KEY_ENTER':
         key = self.term.inkey()
         self.change_card(key)
 
       self.selected = [self.cur_card]
       self.reset_cur_card()
+      key = None
 
-      while not key or key.name is not 'KEY_ENTER':
+      while not key or key.name != 'KEY_ENTER':
         key = self.term.inkey()
         self.change_card(key)
 
-      self.selected = [self.selected[0], self.cur_card]
+    self.selected.append(self.cur_card)
+    self.refresh_display()
+    self.move()
 
+  # makes a move using the selected cards and updates matches if successful
   def move(self):
-    first, second = self.selected
-    is_match = self.board[first[0]][first[1]] == self.board[second[0]][second[1]]
+    score_diff = self.calculate_score()
+    is_match = score_diff > 0
+    if is_match:
+      self.matched.extend(self.selected)
 
+    is_match = score_diff > 0
+    self.score += score_diff
     self.refresh_display(is_match, True)
+  
     with self.term.cbreak():
       key = None
-      while not key or key.name is not 'KEY_ENTER':
+      while not key:
         key = self.term.inkey()
-        
-    if is_match:
-      self.score += 1
-      if self.score > self.high_score:
-        self.high_score = self.score
 
-      self.matched.extend([first, second])
-
-  def change_card(self, key):
-    x, y = self.cur_card
-
-    if x > 0 and key.name == 'KEY_UP':
-      x -= 1
-    elif x < NUM_PAIRS * 2 // CARDS_PER_ROW - 1 and key.name == 'KEY_DOWN':
-      x += 1
-
-    if y > 0 and key.name == 'KEY_LEFT':
-      y -= 1
-    elif y < CARDS_PER_ROW - 1 and key.name == 'KEY_RIGHT':
-      y += 1
-
-    self.cur_card = (x, y)
+    for selection in self.selected:
+      seen_row, seen_col = selection
+      seen_card = self.board[seen_row][seen_col]
+      if seen_card in self.seen:
+        self.seen[seen_card].append((seen_row, seen_col))
+      else:
+        self.seen[seen_card] = [(seen_row, seen_col)]
     self.refresh_display()
 
   # sets cur_card to first unselected or unmatched card
   def reset_cur_card(self):
-    for row in range(NUM_PAIRS * 2 // CARDS_PER_ROW):
+    for row in range(len(self.board), -1, -1):
       for col in range(CARDS_PER_ROW):
-        if self.board[row][col] \
-           and ((row, col) not in self.selected or (row, col) not in self.matched):
+        if self.open_position(row, col):
           self.cur_card = (row, col)
           break
     self.refresh_display()
+
+  # updates current selected card location based on keyboard input
+  def change_card(self, key):
+    if key.name not in ['KEY_UP', 'KEY_DOWN', 'KEY_LEFT', 'KEY_RIGHT']:
+      return
+
+    new_position = None
+    is_row = True if key.name in ['KEY_UP', 'KEY_DOWN'] else False
+    direction = 1 if key.name in ['KEY_DOWN', 'KEY_RIGHT'] else -1
+    new_position = self.direction_has_open_position(is_row, direction)
+
+    if not new_position:
+      new_position = self.find_nearest_open_position(is_row, direction)
+
+    if new_position:
+      self.cur_card = new_position
+      self.refresh_display()
+
+  # check if already matched cards can be skipped and move selection
+  def direction_has_open_position(self, is_row, direction):
+    row, col = self.cur_card
+
+    if is_row and (row + direction < 0 or row + direction >= len(self.board)):
+      return self.cur_card
+    elif not is_row and (col + direction < 0 or col + direction >= CARDS_PER_ROW):
+      return self.cur_card
+
+    if is_row:
+      row += direction
+      while row >= 0 and row < len(self.board):
+        if self.open_position(row, col):
+          return (row, col)
+        row += direction
+    else:
+      col += direction
+      while col >= 0 and col < CARDS_PER_ROW:
+        if self.open_position(row, col):
+          return (row, col)
+        col += direction
+
+    return None
+
+  # finds next closest card diagonally if there is
+  # no possible move along the specified direction
+  def find_nearest_open_position(self, is_row, direction):
+    row, col = self.cur_card
+
+  def refresh_display(self, is_match=False, show_match=False):
+    self.display.display(self.board, self.score,
+                         self.high_score, self.matched,
+                         self.cur_card, self.selected,
+                         is_match, show_match)
+
+  # checks if a position is open to be selected
+  def open_position(self, row, col) -> bool:
+    return (row, col) not in self.matched and (row, col) not in self.selected
+
+  # calculates score of selection based on difficulty
+  def calculate_score(self):
+    first, second = self.selected
+    first_card = self.board[first[0]][first[1]]
+    second_card = self.board[second[0]][second[1]]
+
+    if first_card == second_card:
+      return 1 if self.difficulty == Difficulty.NORMAL else 3
+
+    # if second guess has already been seen in the same position
+    # or if either card already has a known pair
+    if (second_card in self.seen and second in self.seen[second_card]) or \
+       (first_card in self.seen and len(self.seen[first_card]) == 2) or \
+       (second_card in self.seen and len(self.seen[second_card]) == 2):
+      return -1 if self.difficulty == Difficulty.NORMAL else -2
+
+    return 0 if self.difficulty == Difficulty.NORMAL else -1

@@ -1,5 +1,5 @@
-NUM_PAIRS = 12
-CARDS_PER_ROW = 6
+NUM_PAIRS = 2
+CARDS_PER_ROW = 2
 
 MEMORY_ASCII = '''
   ___  ___                                

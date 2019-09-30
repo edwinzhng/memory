@@ -22,5 +22,5 @@ class CardValue(Enum):
   KING = 'K'
 
 class Difficulty(Enum):
-  NORMAL = 'normal'
-  HARD = 'hard'
+  NORMAL = 'NORMAL'
+  HARD = 'HARD'
