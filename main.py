@@ -1,16 +1,11 @@
-from src.CPUGame import CPUGame
+from blessed import Terminal
 from src.display.WelcomeDisplay import WelcomeDisplay
-from src.SoloGame import SoloGame
-from src.util.enums import Difficulties, Modes
+from src.Game import Game
 
 if __name__ == "__main__":
-  welcome_display = WelcomeDisplay()
-  mode, difficulty = welcome_display.display()
+  terminal = Terminal()
+  welcome_display = WelcomeDisplay(terminal)
+  difficulty = welcome_display.get_input()
 
-  game = None
-  if mode is Modes.SOLO:
-    game = SoloGame()
-  else:
-    game = CPUGame(difficulty)
-  
-  game.start_game()
+  game = Game(terminal, difficulty)
+  game.run()

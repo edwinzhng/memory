@@ -1,30 +1,26 @@
 from enum import Enum
 
 class Suit(Enum):
-  CLUBS = 1
-  DIAMONDS = 2
-  HEARTS = 3
-  SPADES = 4
+  CLUBS = '♣'
+  DIAMONDS = '♦'
+  HEARTS = '♥'
+  SPADES = '♠'
 
 class CardValue(Enum):
-  ACE = 1
-  TWO = 2
-  THREE = 3
-  FOUR = 4
-  FIVE = 5
-  SIX = 6
-  SEVEN = 7
-  EIGHT = 8
-  NINE = 9
-  TEN = 10
-  JACK = 11
-  QUEEN = 12
-  KING = 13
+  ACE = 'A'
+  TWO = '2'
+  THREE = '3'
+  FOUR = '4'
+  FIVE = '5'
+  SIX = '6'
+  SEVEN = '7'
+  EIGHT = '8'
+  NINE = '9'
+  TEN = '10'
+  JACK = 'J'
+  QUEEN = 'Q'
+  KING = 'K'
 
-class Modes(Enum):
-  SOLO = 'solo'
-  CPU = 'cpu'
-
-class Difficulties(Enum):
+class Difficulty(Enum):
   NORMAL = 'normal'
   HARD = 'hard'
