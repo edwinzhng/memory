@@ -26,8 +26,8 @@ class Card:
       print(terminal.move(x + 1, y) + '|{}{}|'.format(self.value.value, content))
       print(terminal.move(x + 2, y) + '|{0} {0} {0}|'.format(self.suit.value))
       content = '____' if len(self.value.value) == 1 else '___'
-      print(terminal.move(x + 3, y) + '|{}{}|'.format(content, self.value.value) + Fore.RESET)
+      print(terminal.move(x + 3, y) + '|{}{}|'.format(content, self.value.value) + Fore.WHITE)
     else:
       print(terminal.move(x + 1, y) + '|     |')
       print(terminal.move(x + 2, y) + '|KPCB |')
-      print(terminal.move(x + 3, y) + '|_____|' + Fore.RESET)
+      print(terminal.move(x + 3, y) + '|_____|' + Fore.WHITE)

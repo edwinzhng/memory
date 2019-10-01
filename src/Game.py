@@ -20,16 +20,21 @@ class Game():
   def run(self):
     while(True):
       self.reset()
-      self.refresh_display()
+      with self.term.fullscreen():
+        self.display.print_header()
+        self.refresh_display()
 
-      # while not game over, prompt user for new selections
-      while len(self.matched) < NUM_PAIRS * 2:
-        self.select_cards()
+        # while not game over, prompt user for new selections
+        while len(self.matched) < NUM_PAIRS * 2:
+          self.select_cards()
 
-      if self.score > self.high_score:
-        self.high_score = self.score
+      with self.term.fullscreen():
+        if self.score > self.high_score:
+          self.high_score = self.score
 
-      self.display.display_game_over(self.score, self.high_score)
+        self.display.print_header()
+        self.display.display_game_over(self.score, self.high_score)
+
       with self.term.cbreak():
         key = ''
         while key.lower() != 'q' and getattr(key, 'name', '') != 'KEY_ENTER':
@@ -148,6 +153,15 @@ class Game():
   # no possible move along the specified direction
   def find_nearest_open_position(self, is_row, direction):
     row, col = self.cur_card
+    if is_row:
+      while 0 <= col + direction < CARDS_PER_ROW:
+        position = None
+        col += direction
+    else:
+      while 0 <= row + direction < len(self.board):
+        position = None
+        row += direction
+    return None
 
   def refresh_display(self, is_match=False, show_match=False):
     self.display.display(self.board, self.score,
