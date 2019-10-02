@@ -75,7 +75,7 @@ class Game():
     self.move()
 
   # makes a move using the selected cards and updates matches if successful
-  def move(self):
+  def move(self, wait_for_input=True):
     score_diff = self.calculate_score()
     is_match = score_diff > 0
     if is_match:
@@ -87,8 +87,8 @@ class Game():
   
     with self.term.cbreak():
       key = None
-      while not key:
-        key = self.term.inkey()
+      while not key and wait_for_input:
+        key = self.term.inkey(timeout=5)
 
     for selection in self.selected:
       seen_row, seen_col = selection
@@ -149,18 +149,37 @@ class Game():
 
     return None
 
-  # finds next closest card diagonally if there is
-  # no possible move along the specified direction
+  # finds next closest card diagonally if there is no possible move
+  # along the specified direction, essentially breadth first search
   def find_nearest_open_position(self, is_row, direction):
     row, col = self.cur_card
     if is_row:
-      while 0 <= col + direction < CARDS_PER_ROW:
-        position = None
-        col += direction
-    else:
-      while 0 <= row + direction < len(self.board):
-        position = None
+      row += direction
+      while 0 <= row < len(self.board):
+        col_left = col - 1
+        col_right = col + 1
+        while col_left >= 0 or col_right < CARDS_PER_ROW:
+          if col_left >= 0 and self.open_position(row, col_left):
+            return (row, col_left)
+          elif col_right < CARDS_PER_ROW and self.open_position(row, col_right):
+            return (row, col_right)
+          col_left -= 1
+          col_right += 1
         row += direction
+    else:
+      col += direction
+      while 0 <= col < CARDS_PER_ROW:
+        row_up = row - 1
+        row_down = row + 1
+        while row_up >= 0 or row_down < len(self.board):
+          if row_up >= 0 and self.open_position(row_up, col):
+            return (row_up, col)
+          elif row_down < len(self.board) and self.open_position(row_down, col):
+            return (row_down, col)
+          row_up -= 1
+          row_down += 1
+        col += direction
+
     return None
 
   def refresh_display(self, is_match=False, show_match=False):
@@ -171,7 +190,9 @@ class Game():
 
   # checks if a position is open to be selected
   def open_position(self, row, col) -> bool:
-    return (row, col) not in self.matched and (row, col) not in self.selected
+    t = (row, col) not in self.matched and (row, col) not in self.selected
+    print(t, row, col)
+    return t
 
   # calculates score of selection based on difficulty
   def calculate_score(self):
@@ -183,9 +204,10 @@ class Game():
       return 1 if self.difficulty == Difficulty.NORMAL else 3
 
     # if second guess has already been seen in the same position
-    # or if either card already has a known pair
-    if (second_card in self.seen and second in self.seen[second_card]) or \
-       (first_card in self.seen and len(self.seen[first_card]) == 2) or \
+    # or if either card already has a known pair that can be matched
+    if (first_card in self.seen and len(self.seen[first_card]) == 2) or \
+       (first_card in self.seen and self.seen[first_card][0] is not first) or \
+       (second_card in self.seen and second in self.seen[second_card]) or \
        (second_card in self.seen and len(self.seen[second_card]) == 2):
       return -1 if self.difficulty == Difficulty.NORMAL else -2
 

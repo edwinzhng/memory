@@ -9,6 +9,7 @@ from src.util.constants import MEMORY_ASCII
 class Display(ABC):
   def __init__(self, terminal):
     self.term = terminal
+    self.print_header()
 
   @abstractmethod
   def display(self):

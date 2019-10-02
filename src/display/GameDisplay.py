@@ -32,16 +32,16 @@ class GameDisplay(Display):
 
       y = y_0
       x += 5
-
-    print()
+    
     if show_match:
       if is_match:
         match_message = Fore.LIGHTGREEN_EX + 'You found a match!'
       else:
         match_message = Fore.LIGHTMAGENTA_EX + 'Try again!'
-      print('  {} (Press any KEY to continue)'.format(match_message) + Fore.WHITE)
+      print('\n  {} (Press any KEY to continue)'.format(match_message) + Fore.WHITE)
     else:
-      print()
+      print('\n                                                 ')
+      
     print('\n  Score: {}       \n'.format(score))
     print('  High Score: {}      '.format(high_score))
 

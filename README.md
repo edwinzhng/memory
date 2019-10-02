@@ -17,20 +17,21 @@ A command-line based version of the card game memory created for the 2020 KPCB F
 
 *Note this game does not work on Windows*
 
-1. Clone or download this repository
+1. Clone or download this repository directly
 2. Install Python 3.5+ and Pipenv (this won't run on Python versions lower than 3.5)
-    - To install `pipenv`, make sure `pip` is installed and install `pipenv` with `pip install pipenv`
+    - To install `pipenv`, make sure `pip` is installed and run `pip install pipenv`
 3. Inside the repository, run `pipenv install`
 4. Run the game using `pipenv run python main.py` (for optimal experience open the console with fullscreen)
+    - Some display errors may occur if the terminal window size is too small because I didn't have time to iron them out
 
 ## Tests
-* Run tests with `pipenv run pytest`
+* Run tests with `pipenv run nosetests --exe`
 
 * Unit tests exist for core game logic:
-    - Card selection (skipping over already matched cards and other edge cases)
-    - Scoring
-    - Matching cards
-* All other methods are mainly presentational such as the display logic and are tested by playing the game
+    - Card selection (skipping over matched cards and other edge cases)
+    - Scoring and matching cards (all edge cases)
+    - Card values
+* All other methods are mainly presentational such as the display logic and are were tested by playing the game
 
 ## Rules
 
@@ -56,10 +57,12 @@ The Display class houses all presentation logic and abstracts this away from the
 
 The Game uses both the Card and Display classes and holds all of the core game logic including matching, scoring and handling user input. To keep track of the already seen cards for scoring, I used a hash map and stored the card values along with their location.
 
+I also created files for Enums and constants that are reused throughout classes to keep things consistent and easily modifiable.
+
 ## Language and Libraries
 
 I chose to use Python mainly because it is easy to use and I am comfortable with it. It also has a plethora of useful libraries that I was able to use for this project. For displaying the game on the command line, I used the `blessed` library which is based off of `curses` and provides a simple but flexible API for creating nice command line displays. I also used `colorama` to display colored text.
 
-For testing, I used Pytest since it provides all of the my required testing functionality and has good documentation, and makes it easy to setup test fixtures and functions.
+I used `nose` as my test runner since it extends the built-in Python `unittest` framework, has good documentation, and makes it easy to setup test classes and functions.
 
-For the ASCII text, I used `patorjk`'s [Text to Ascii Art Generator](http://patorjk.com/software/taag) and borrowed the nice elephant drawing from http://ascii.co.uk/art/elephant.
+For the ASCII text, I used `patorjk`'s [Text to Ascii Art Generator](http://patorjk.com/software/taag) and borrowed the nice elephant drawing from http://ascii.co.uk/art/elephant :).

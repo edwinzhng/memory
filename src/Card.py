@@ -8,10 +8,18 @@ class Card:
     self.color = Fore.LIGHTCYAN_EX if suit in [Suit.SPADES, Suit.CLUBS] else Fore.LIGHTRED_EX
 
   def __str__(self):
-    return self.color + '{}{}'.format(self.value.value, self.suit.value) + Fore.RESET
+    return self.color + '{}{}'.format(self.value.value, self.suit.value) + Fore.WHITE
 
   def __repr__(self):
-    return self.color + '{}{}'.format(self.value.value, self.suit.value) + Fore.RESET
+    return self.color + '{}{}'.format(self.value.value, self.suit.value) + Fore.WHITE
+
+  def __eq__(self, other):
+      if isinstance(other, Card):
+          return self.value == other.value and self.suit == other.suit
+      return False
+
+  def __hash__(self):
+    return hash('{} of {}'.format(self.value.name, self.suit.name))
 
   # displays card with proper colors and formatting in the terminal
   def display(self, terminal, cursor_start, flipped=False, selected=False):
