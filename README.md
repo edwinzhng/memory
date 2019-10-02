@@ -31,7 +31,7 @@ A command-line based version of the card game memory created for the 2020 KPCB F
     - Card selection (skipping over matched cards and other edge cases)
     - Scoring and matching cards (all edge cases)
     - Card values
-* All other methods are mainly presentational such as the display logic and are were tested by playing the game
+* All other methods are mainly presentational such as the display logic and were tested by playing the game
 
 ## Rules
 
@@ -39,11 +39,11 @@ The objective of the game is to find all matching pairs of cards and maximize sc
 
 ### Game Modes
 
-#### Normal
+#### _Normal_
 
 The user scores 1 point for every successful match, and loses 1 point when they fail to find a match for a card they have already seen.
 
-#### Hard
+#### _Hard_
 
 The user scores 3 points for every successful match. _Every_ unsuccessful match causes the user to lose 1 point and failing to match a previously seen card results in 2 points lost.
 
@@ -66,3 +66,8 @@ I chose to use Python mainly because it is easy to use and I am comfortable with
 I used `nose` as my test runner since it extends the built-in Python `unittest` framework, has good documentation, and makes it easy to setup test classes and functions.
 
 For the ASCII text, I used `patorjk`'s [Text to Ascii Art Generator](http://patorjk.com/software/taag) and borrowed the nice elephant drawing from http://ascii.co.uk/art/elephant :).
+
+## Screenshots
+
+<img src="./img/welcome.png" alt="Welcome Screen" style="top: 0" width="500">
+<img src="./img/memory.png" alt="Game Screen" width="500">

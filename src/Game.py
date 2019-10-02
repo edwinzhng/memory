@@ -190,9 +190,7 @@ class Game():
 
   # checks if a position is open to be selected
   def open_position(self, row, col) -> bool:
-    t = (row, col) not in self.matched and (row, col) not in self.selected
-    print(t, row, col)
-    return t
+    return (row, col) not in self.matched and (row, col) not in self.selected
 
   # calculates score of selection based on difficulty
   def calculate_score(self):
